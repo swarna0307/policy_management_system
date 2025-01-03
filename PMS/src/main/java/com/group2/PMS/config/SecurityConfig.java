@@ -1,4 +1,4 @@
-package com.group2.PMS.config;
+/**package com.group2.PMS.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +28,51 @@ public class SecurityConfig {
                 .anyRequest().authenticated() // Secure all other endpoints
                 .and()
                 .httpBasic().disable()  // Disable HTTP Basic authentication
+                .formLogin().disable() // Disable form-based login
+
+        //----------
+
+
+
+        return http.build();
+    }
+}*/
+
+package com.group2.PMS.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf().disable() // Disable CSRF for simplicity
+                .authorizeRequests(auth -> auth
+                        .requestMatchers("/user/register", "/user/login").permitAll() // Permit access to register/login
+                        .requestMatchers("/user/update", "/user/deactivate").permitAll() //.hasRole("CUSTOMER")// Secure update/deactivate endpoints
+                        //.anyRequest().authenticated() // Secure all other endpoints
+                        .anyRequest().permitAll()
+                )
+                .httpBasic().disable()  // Disable HTTP Basic authentication
                 .formLogin().disable(); // Disable form-based login
 
         return http.build();
     }
 }
+
+
+

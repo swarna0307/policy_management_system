@@ -65,6 +65,12 @@ public class UserService {
         user.setDateOfRegistration(LocalDate.now()); // Set the registration date
         user.setIsActive(true); // Set the user as active
         user.setPassword(passwordEncoder.encode(user.getPassword())); // Encrypt the password before saving
+
+        //contact number-----------------
+        if (user.getContactNumber() != null && !user.getContactNumber().isEmpty()) {
+            user.setContactNumber(user.getContactNumber()); // Set the contact number if provided
+        }
+
         return userRepository.save(user); // Save user to database
     }
 
@@ -83,6 +89,49 @@ public class UserService {
         return user.map(User::getRole); // Return Optional role
     }
 
-    //added
+    //added-
+
+
+    public User updateUser(User updatedUser, Long id) {
+        Optional<User> existingUserOpt = userRepository.findById(id);
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            existingUser.setName(updatedUser.getName());
+            existingUser.setContactNumber(updatedUser.getContactNumber());
+            existingUser.setAddress(updatedUser.getAddress());
+            // Add other fields to update if necessary
+            return userRepository.save(existingUser);
+        } else {
+            throw new RuntimeException("User not found with ID: " + id);
+        }
+    }
+    /**public User updateUser(User updatedUser, Long id) {
+        Optional<User> existingUserOpt = userRepository.findById(id);
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            // Update the user's fields based on the incoming data
+            existingUser.setName(updatedUser.getName());
+            existingUser.setContactNumber(updatedUser.getContactNumber());
+            existingUser.setAddress(updatedUser.getAddress());
+            // Add other fields to update if necessary
+            return userRepository.save(existingUser);
+        } else {
+            throw new RuntimeException("User not found with ID: " + id);  // Custom exception
+        }
+    }*/
+
+
+
+    @Transactional
+    public void deactivateUser(Long id) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setIsActive(false);
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
 
 }
